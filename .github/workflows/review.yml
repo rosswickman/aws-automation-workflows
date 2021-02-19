@@ -1,0 +1,38 @@
+---
+name: Review All Resources
+
+# Triggered on all push events but master
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  ## Configured to not run to save time/minutes
+  if: false
+  superlinter:
+    runs-on: ubuntu-latest
+    name: SuperLinter
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+
+      - name: Run Superlinter
+        id: superlinter
+        uses: github/super-linter@v3.13.2
+
+  checkov:
+    runs-on: ubuntu-latest
+    name: Checkov
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+
+      - name: Run Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          quiet: true
+          #skip_check: CKV_AWS_1 # optional: skip a specific check_id
+          #framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}

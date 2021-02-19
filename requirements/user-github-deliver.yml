@@ -1,0 +1,93 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: GitHub Actions User - Deliver - Permissions for putting objects in S3
+
+Metadata:
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: User Configuration
+      Parameters:
+      - UserName
+
+    - Label:
+        default: Bucket Configuration
+      Parameters:
+      - Bucket
+
+    ParameterLabels:
+      UserName:
+        default: User Name
+      Bucket:
+        default: Bucket Name
+
+Parameters:
+
+  UserName:
+    Type: String
+    Description: Enter the name you would like for your IAM User
+    Default: github-deliver
+
+  Bucket:
+    Type: String
+    Description: Enter bucket this user can access
+
+Resources:
+
+  User:
+    Type: 'AWS::IAM::User'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F10
+            reason: "Allow Inline policy to be sure policy is not leveraged on other resources"
+          - id: F2000
+            reason: "Group membership not required to use as a specific service account"
+    Properties:
+      UserName: !Ref UserName
+      Policies:
+        -
+          PolicyName: S3-Allow-Actions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: S3Actions
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${Bucket}'
+                  - !Sub 'arn:aws:s3:::${Bucket}/*'
+        -
+          PolicyName: S3-Allow-Buckets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: S3BucketsAllowed
+              Effect: Deny
+              Action:
+              - s3:*
+              NotResource:
+                - !Sub 'arn:aws:s3:::${Bucket}'
+                - !Sub 'arn:aws:s3:::${Bucket}/*'
+
+  UserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName:
+        !Ref User
+
+  UserSecret:
+    Type: AWS::SecretsManager::Secret
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W77
+            reason: "Secrets Manager Secret should explicitly specify KmsKeyId. Besides control of the key this will allow the secret to be shared cross-account"
+    Properties:
+      Name: !Ref UserName
+      Description: Access Keys for GitHub Actions User
+      SecretString: !Sub '{"AWS_ACCESS_KEY_ID":"${UserAccessKey}","AWS_SECRET_ACCESS_KEY":"${UserAccessKey.SecretAccessKey}"}'
