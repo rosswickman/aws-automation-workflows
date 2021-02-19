@@ -66,6 +66,8 @@ Resources:
     Properties:
       #checkov:skip=CKV_AWS_21:Versioning is maintained by Git source control
       #checkov:skip=CKV_AWS_18:Ensure the S3 bucket has access logging enabled
+      #checkov:skip=CKV_AWS_54:Ensure S3 bucket has block public policy enabled
+      #checkov:skip=CKV_AWS_56:Ensure S3 bucket has 'restrict_public_bucket' enabled
       BucketName: !Ref BucketName
       BucketEncryption:
         ServerSideEncryptionConfiguration:
