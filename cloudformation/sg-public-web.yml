@@ -9,9 +9,10 @@ Parameters:
     Type: AWS::EC2::VPC::Id
     Default: vpc-bc441ec4
 
-  GroupName:
-    Type: String
-    Default: demo-public-web-cfn
+  ## Removed to allow in place update and because I'm too lazy to suppress checks
+  # GroupName:
+  #   Type: String
+  #   Default: demo-public-web-cfn
 
 Resources:
 
