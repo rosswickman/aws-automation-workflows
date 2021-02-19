@@ -6,12 +6,15 @@ This is a demo project providing an example of some workflow checks and template
 
 Create the following resources in your account
 
-* S3 bucket for template delivery
-* IAM user for permissions to deliver templates to bucket
+| Resource | Purpose | Deploy Link |
+| ----- | ------------- | -------------------- |
+| S3 Bucket | Holds resource templates | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/quickcreate?stackName=bucket-github-cicd&templateURL=https://s3.amazonaws.com/aws-support.tactfulcloud.com/cicd/bucket-github-templates.yml) |
+| IAM User | Permissions to put objects in S3 | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/quickcreate?stackName=bucket-github-cicd&templateURL=https://s3.amazonaws.com/aws-support.tactfulcloud.com/cicd/user-github-deliver.yml) |
+| IAM User | Permission to deploy resources |[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/quickcreate?stackName=bucket-github-cicd&templateURL=https://s3.amazonaws.com/aws-support.tactfulcloud.com/cicd/user-github-deploy.yml) |
 
-> ***Demo Note:*** The `Deploy` IAM user template provided in this project is configured with `PowerUserAccess` and can do virutally anything in your environment.
+> ***Demo Note:*** The `Deploy` IAM user template provided in this project is configured with `PowerUserAccess` and can do virtually anything in your environment.
 
-* IAM user with permission to deploy stacks in account
+### Production Notice
 
 > ***Production Note:*** In a production environment it would be best to use a [GitHub Action Runner](https://github.com/actions/runner) to prevent storing credentials in your projects.
 
