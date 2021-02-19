@@ -34,7 +34,7 @@ jobs:
       # Downloads a specific version of Terraform CLI and adds it to PATH
       # Marketplace: https://github.com/marketplace/actions/hashicorp-setup-terraform
       - name: "Setup - Terraform CLI"
-        uses: hashicorp/setup-terraform@v1.0.1
+        uses: hashicorp/setup-terraform@v1.3.2
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
