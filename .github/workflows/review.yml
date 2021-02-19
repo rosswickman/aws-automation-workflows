@@ -9,8 +9,8 @@ on:
 
 jobs:
   ## Configured to not run to save time/minutes
-  if: false
   superlinter:
+    if: false
     runs-on: ubuntu-latest
     name: SuperLinter
     steps:
