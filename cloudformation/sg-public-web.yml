@@ -9,17 +9,17 @@ Parameters:
     Type: AWS::EC2::VPC::Id
     Default: vpc-bc441ec4
 
-  ## Removed to allow in place update and because I'm too lazy to suppress checks
-  # GroupName:
-  #   Type: String
-  #   Default: demo-public-web-cfn
+  # Removed to allow in place update and because I'm too lazy to suppress checks
+  GroupName:
+    Type: String
+    Default: public-web-cloudformation
 
 Resources:
 
   WebSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      #GroupName: !Ref GroupName
+      GroupName: !Ref GroupName
       GroupDescription: Public Web Access from CloudFormation
       VpcId: !Ref VPC
 

@@ -12,8 +12,8 @@ terraform {
 }
 
 resource "aws_security_group" "public_web" {
-  name        = "public-web"
-  description = "Allow Public Web Traffic"
+  name        = "public-web-terraform"
+  description = "Public Web Access from Terraform"
   vpc_id      = "vpc-bc441ec4"
 
   ingress {
