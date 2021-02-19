@@ -6,7 +6,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "github-cicd-demo"
-    key    = "/terrform/state/sg/demo-public-web"
+    key    = "terrform/state/sg/demo-public-web"
     region = "us-west-2"
   }
 }
