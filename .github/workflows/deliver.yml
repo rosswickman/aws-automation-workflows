@@ -17,7 +17,7 @@ env:
 jobs:
 
   cfn-deliver:
-    if: github.ref == 'refs/heads/master'
+    #if: github.ref == 'refs/heads/master'
     name: Deliver CloudFormation
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
         aws s3 sync cloudformation s3://${{ env.AWS_BUCKET }}/cloudformation --region ${{ env.AWS_DEFAULT_REGION }}
 
   tf-deliver:
-    if: github.ref == 'refs/heads/master'
+    #if: github.ref == 'refs/heads/master'
     name: Deliver Terraform
     runs-on: ubuntu-latest
     steps:
