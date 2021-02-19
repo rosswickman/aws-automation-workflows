@@ -1,0 +1,33 @@
+---
+name: "CloudFormation Review"
+
+# Triggered on all push events but to master
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+
+  cloudformation-nag:
+    runs-on: ubuntu-latest
+    name: CloudFormation Review
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: CFN-NAG
+        uses: stelligent/cfn_nag@master
+        with:
+          input_path: cloudformation
+
+  cloudformation-lint:
+    runs-on: ubuntu-latest
+    name: CloudFormation Linter
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: cfn-lint
+      uses: scottbrenner/cfn-lint-action@master
+      with:
+        args: "cloudformation/*"

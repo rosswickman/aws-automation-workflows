@@ -1,0 +1,32 @@
+name: "Terraform Review"
+
+# Triggered on all push events
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  terraform-review:
+    name: "Terraform Review"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Setup - Checkout"
+        uses: actions/checkout@v2.1.0
+
+      - name: "Setup - Terraform CLI"
+        uses: hashicorp/setup-terraform@v1.3.2
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+      - name: "Run - Terraform Init"
+        id: initialize
+        run: terraform init -input=false -backend=false terraform
+
+      - name: "Run - Terraform fmt"
+        id: format
+        run: terraform fmt -check=true -diff=true terraform
+
+      - name: "Run - Terraform validate"
+        id: validate
+        run: terraform validate terraform

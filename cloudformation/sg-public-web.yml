@@ -1,0 +1,58 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Security Group - Demo - Public Access Web
+
+Parameters:
+
+  VPC:
+    Description: VPC Id for deployment
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-bc441ec4
+
+  ## Removed to allow in place update and because I'm too lazy to suppress checks
+  # GroupName:
+  #   Type: String
+  #   Default: demo-public-web-cfn
+
+Resources:
+
+  WebSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      #GroupName: !Ref GroupName
+      GroupDescription: Public Web Access from CloudFormation
+      VpcId: !Ref VPC
+
+  WebSGDefaultEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref WebSG
+      IpProtocol: '-1'
+      CidrIp: 0.0.0.0/0
+      Description: 'Default egress all traffic'
+
+  WebSG80:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref WebSG
+      CidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      ToPort: 80
+      FromPort: 80
+      Description: 'Public HTTP'
+
+  WebSG443:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref WebSG
+      CidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      ToPort: 443
+      FromPort: 443
+      Description: 'Public HTTPS'
+
+Outputs:
+
+  WebSG:
+    Description: Security Group for Public Web Access
+    Value: !Ref WebSG

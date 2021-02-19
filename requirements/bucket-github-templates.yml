@@ -1,0 +1,167 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Bucket - Automation - Uploads from Github Workflows for CICD
+
+Metadata:
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Bucket Configuration
+      Parameters:
+      - BucketName
+
+    - Label:
+        default: Bucket Permissions
+      Parameters:
+      - OrganizationID
+      - AccountID
+      - PublicAccess
+
+    ParameterLabels:
+      BucketName:
+        default: CICD Bucket Name
+      OrganizationID:
+        default: Organization ID
+      AccountID:
+        default: Account ID
+      PublicAccess:
+        default: Allow Public Access
+
+Parameters:
+
+  BucketName:
+    Type: String
+    Description: Name of bucket
+
+  OrganizationID:
+    Type: String
+    Description: 'Provide AWS Organizations identifier (e.x. o-##########) if applicable.
+      Only required if denying public access.'
+    Default: o-xxxxxxxxx
+
+  AccountID:
+    Type: String
+    Description: 'Provide single account identifier (e.x. 012345678901) for account access.
+      Only required if denying public access.'
+    Default: xxxxxxxxxxxx
+
+  PublicAccess:
+    Type: String
+    Description: 'WARNING: This will override values for Organization ID and Account ID'
+    Default: 'False'
+    AllowedValues:
+      - 'True'
+      - 'False'
+
+Conditions:
+
+  restrictedAccess: !Equals [!Ref PublicAccess, 'False']
+  publicAccess: !Equals [!Ref PublicAccess, 'True']
+
+Resources:
+
+  Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      #checkov:skip=CKV_AWS_21:Versioning is maintained by Git source control
+      #checkov:skip=CKV_AWS_18:Ensure the S3 bucket has access logging enabled
+      #checkov:skip=CKV_AWS_54:Ensure S3 bucket has block public policy enabled
+      #checkov:skip=CKV_AWS_56:Ensure S3 bucket has 'restrict_public_bucket' enabled
+      BucketName: !Ref BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      VersioningConfiguration:
+        Status: Suspended
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        #BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        #RestrictPublicBuckets: true
+      Tags:
+      - Key: Name
+        Value: !Ref BucketName
+      - Key: Type
+        Value: CICD
+      - Key: Public
+        Value: !Ref PublicAccess
+    DeletionPolicy: Retain
+
+  BucketPolicyRestricted:
+    Condition: restrictedAccess
+    Type: 'AWS::S3::BucketPolicy'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+        - id: F16
+          reason: "Public bucket requires * Get-Object"
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Id: RestrictToOrganization
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowReadAccess
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${Bucket}/*'
+
+          - Sid: DenyOutsideOrganization
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Action:
+            - "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${Bucket}/*'
+            Condition:
+              StringNotEquals:
+                aws:PrincipalOrgID: !Ref OrganizationID
+                aws:SourceAccount: !Ref AccountID
+    DependsOn: Bucket
+
+  BucketPolicyPublic:
+    Condition: publicAccess
+    Type: 'AWS::S3::BucketPolicy'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+        - id: F16
+          reason: "Public bucket requires Get-Object for all"
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Id: PublicAccess
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowReadAccess
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${Bucket}/*'
+    DependsOn: Bucket
+
+Outputs:
+
+  BucketURL:
+    Value: !GetAtt [Bucket, WebsiteURL]
+    Description: Bucket URL for objects hosted on S3
+
+  SecureURL:
+    Value: !Join ["", ["https://", !GetAtt [Bucket, DomainName]]]
+    Description: Name of S3 bucket to hold objects
+
+  DomainName:
+    Value: !GetAtt [Bucket, DomainName]
+    Description: Domain name of resource bucket
+
+  BucketArn:
+    Value: !GetAtt [Bucket, Arn]
+    Description: Arn of resource bucket
