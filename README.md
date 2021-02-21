@@ -2,6 +2,8 @@
 
 This is a demo providing an example of some workflow checks and templates for the CICD of CloudFormation and Terraform templates to an AWS Account.
 
+Related blog post: [https://rwick.it/automate-aws-resource-review-and-deployments-with-github-actions](https://rwick.it/automate-aws-resource-review-and-deployments-with-github-actions)
+
 ## Requirements
 
 Create the following resources in your account
